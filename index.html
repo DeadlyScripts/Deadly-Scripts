@@ -1,0 +1,263 @@
+<!--
+Simple GitHub Pages website (single-file)
+Features:
+- Create, edit, delete posts (stored in browser localStorage)
+- Posts support Markdown (rendered with a tiny markdown parser)
+- Download posts as Markdown files so you can commit them to a repo
+- Instructions for deploying to GitHub Pages included below
+
+How to use:
+1. Save this file as index.html in a GitHub repo (e.g., user.github.io or repo's gh-pages branch)
+2. Open the page in your browser. Use the UI to create posts.
+3. Use "Download .md" button to export a post and commit to the repo if you want permanent hosting.
+
+This is intentionally self-contained (no CDN required).
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My GitHub Pages — Simple Blog</title>
+  <style>
+    /* Minimal, modern styles */
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#60a5fa;--glass: rgba(255,255,255,0.03)}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,'Helvetica Neue',Arial}
+    body{background:linear-gradient(180deg,#071428 0%, #071a2a 100%);color:#e6eef8;padding:24px}
+    .container{max-width:980px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    h1{margin:0;font-size:1.4rem}
+    p.lead{margin:0;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:360px 1fr;gap:18px;margin-top:18px}
+    .card{background:var(--card);padding:12px;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+    label{display:block;font-size:0.85rem;color:var(--muted);margin-bottom:6px}
+    input[type=text],textarea,select{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    textarea{min-height:160px;resize:vertical}
+    button{background:var(--accent);color:#062540;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+    .posts-list{max-height:560px;overflow:auto;margin-top:8px}
+    .post-item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;margin-bottom:8px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));}
+    .post-item h3{margin:0;font-size:0.95rem}
+    .row{display:flex;gap:8px;align-items:center}
+    .preview{background:var(--glass);padding:12px;border-radius:10px;color: #dbeafe;overflow:auto;min-height:200px}
+    footer{margin-top:18px;color:var(--muted);font-size:0.85rem}
+    .controls{display:flex;gap:8px;flex-wrap:wrap}
+    .help{font-size:0.9rem;color:var(--muted);margin-top:8px}
+    .tag{background:rgba(255,255,255,0.03);padding:4px 8px;border-radius:999px;font-size:0.8rem}
+    .small{font-size:0.85rem;color:var(--muted)}
+    a.link{color:var(--accent);text-decoration:none}
+    @media (max-width:900px){.grid{grid-template-columns:1fr;}.container{padding:12px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>My GitHub Pages — Simple Blog</h1>
+        <p class="lead">Create posts, preview Markdown, download posts as .md and deploy to GitHub Pages.</p>
+      </div>
+      <div class="row">
+        <span class="tag">Local-first</span>
+        <button id="newBtn" class="ghost">New post</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div>
+          <label for="title">Title</label>
+          <input id="title" type="text" placeholder="My post title" />
+        </div>
+        <div style="margin-top:8px">
+          <label for="slug">Slug (optional — used for filename)</label>
+          <input id="slug" type="text" placeholder="my-post-title" />
+        </div>
+        <div style="margin-top:8px">
+          <label for="content">Content (Markdown supported)</label>
+          <textarea id="content" placeholder="# Hello\nWrite your post in Markdown"></textarea>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <button id="saveBtn">Save</button>
+          <button id="downloadBtn" class="ghost">Download .md</button>
+          <button id="copyBtn" class="ghost">Copy Markdown</button>
+        </div>
+
+        <div class="help">
+          <div class="small">Tip: Press <kbd>Ctrl/Cmd + S</kbd> to save. Use the download button to export a .md file you can commit into your repo.</div>
+        </div>
+
+        <div style="margin-top:12px">
+          <label>Saved posts</label>
+          <div class="posts-list" id="postsList"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2 style="margin:0;font-size:1.05rem">Preview</h2>
+            <div class="small">Rendered from Markdown</div>
+          </div>
+          <div style="margin-top:10px" class="preview" id="preview"></div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3 style="margin-top:0">How to publish on GitHub Pages</h3>
+          <ol>
+            <li>Create a repository on GitHub (recommended name: <code>yourusername.github.io</code> for user site).</li>
+            <li>Add this <code>index.html</code> to the repository root and commit.</li>
+            <li>Go to the repository Settings → Pages and enable Pages from main branch (root). Your site will be public at <code>https://yourusername.github.io</code>.</li>
+            <li>To add permanent posts, download a post as <code>.md</code> and commit it into a folder (e.g. <code>_posts</code>), or edit the repo directly on GitHub.</li>
+          </ol>
+          <p class="small">Want a nicer blog with automatic indexing? Consider using a static site generator (Jekyll, Hugo) or a headless CMS (Netlify CMS) later.</p>
+        </div>
+
+        <footer>
+          <div class="small">This is a single-file starter. All saved posts are stored in your browser's localStorage. Use download to make repo commits for permanent publishing.</div>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tiny Markdown renderer (very small subset)
+    function mdToHtml(md){
+      if(!md) return '';
+      // escape
+      const esc = md.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      // code fences
+      let html = esc
+        .replace(/(^|\n)```([\s\S]*?)```/g, function(_,a,code){return '\n<pre><code>'+code.replace(/</g,'&lt;')+'</code></pre>';})
+        // headers
+        .replace(/^###### (.*$)/gim, '<h6>$1</h6>')
+        .replace(/^##### (.*$)/gim, '<h5>$1</h5>')
+        .replace(/^#### (.*$)/gim, '<h4>$1</h4>')
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        // bold/italic
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        // links
+        .replace(/\[(.*?)\]\((.*?)\)/g, '<a class="link" href="$2" target="_blank" rel="noopener">$1</a>')
+        // images
+        .replace(/!\[(.*?)\]\((.*?)\)/g, '<img alt="$1" src="$2" style="max-width:100%;border-radius:8px">')
+        // unordered lists
+        .replace(/(^|\n)\s*-\s+(.*)/g, '$1<li>$2</li>')
+        .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>')
+        // paragraphs
+        .replace(/\n\n+/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+      // wrap in p if not starting with block
+      if(!/^\s*<h|^\s*<ul|^\s*<pre/.test(html)) html = '<p>' + html + '</p>';
+      return html;
+    }
+
+    // Utility: slugify
+    function slugify(s){
+      return s.toString().toLowerCase().trim()
+        .replace(/[^a-z0-9-\s]/g,'')
+        .replace(/\s+/g,'-')
+        .replace(/-+/g,'-');
+    }
+
+    // Storage
+    const STORAGE_KEY = 'gh_simple_blog_posts_v1';
+    function loadPosts(){
+      try{const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; }catch(e){return []}
+    }
+    function savePosts(posts){ localStorage.setItem(STORAGE_KEY, JSON.stringify(posts)); }
+
+    // Elements
+    const titleEl = document.getElementById('title');
+    const slugEl = document.getElementById('slug');
+    const contentEl = document.getElementById('content');
+    const previewEl = document.getElementById('preview');
+    const postsListEl = document.getElementById('postsList');
+    const saveBtn = document.getElementById('saveBtn');
+    const newBtn = document.getElementById('newBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const copyBtn = document.getElementById('copyBtn');
+
+    let posts = loadPosts();
+    let editingId = null;
+
+    function renderPosts(){
+      postsListEl.innerHTML = '';
+      if(posts.length===0){ postsListEl.innerHTML = '<div class="small">No posts yet</div>'; return; }
+      posts.slice().reverse().forEach(p=>{
+        const wrap = document.createElement('div'); wrap.className='post-item';
+        const left = document.createElement('div');
+        left.innerHTML = '<h3>'+escapeHtml(p.title||'(no title)')+'</h3><div class="small">'+(new Date(p.updated).toLocaleString())+'</div>';
+        const right = document.createElement('div'); right.className='row';
+        const openBtn = document.createElement('button'); openBtn.className='ghost'; openBtn.textContent='Open'; openBtn.onclick = ()=>{ openPost(p.id); };
+        const delBtn = document.createElement('button'); delBtn.className='ghost'; delBtn.textContent='Delete'; delBtn.onclick = ()=>{ if(confirm('Delete this post?')){ posts = posts.filter(x=>x.id!==p.id); savePosts(posts); renderPosts(); if(editingId===p.id) clearEditor(); }};
+        right.appendChild(openBtn); right.appendChild(delBtn);
+        wrap.appendChild(left); wrap.appendChild(right);
+        postsListEl.appendChild(wrap);
+      });
+    }
+
+    function escapeHtml(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+    function openPost(id){
+      const p = posts.find(x=>x.id===id); if(!p) return; editingId = p.id; titleEl.value = p.title; slugEl.value = p.slug||''; contentEl.value = p.content; updatePreview();
+    }
+
+    function clearEditor(){ editingId = null; titleEl.value=''; slugEl.value=''; contentEl.value=''; updatePreview(); }
+
+    function updatePreview(){ previewEl.innerHTML = mdToHtml(contentEl.value || ''); }
+
+    // Save
+    saveBtn.addEventListener('click', ()=>{
+      const t = titleEl.value.trim(); const c = contentEl.value; const s = slugEl.value.trim() || slugify(t) || ('post-'+Date.now());
+      const now = Date.now();
+      if(editingId){
+        posts = posts.map(p=> p.id===editingId ? {...p,title:t,content:c,slug:s,updated:now} : p );
+      } else {
+        const id = 'p_'+Math.random().toString(36).slice(2,9);
+        posts.push({id,title:t,content:c,slug:s,created:now,updated:now});
+        editingId = id;
+      }
+      savePosts(posts); renderPosts(); alert('Saved locally — use Download .md to export for committing to GitHub.');
+    });
+
+    // keyboard save
+    window.addEventListener('keydown', e=>{ if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); saveBtn.click(); }});
+
+    // live preview
+    contentEl.addEventListener('input', updatePreview);
+
+    newBtn.addEventListener('click', ()=>{ clearEditor(); titleEl.focus(); });
+
+    // Download .md
+    downloadBtn.addEventListener('click', ()=>{
+      const t = titleEl.value.trim() || 'untitled';
+      const s = slugEl.value.trim() || slugify(t) || ('post-'+Date.now());
+      const c = contentEl.value || '';
+      const md = `---\ntitle: ${t}\nslug: ${s}\ndate: ${new Date().toISOString()}\n---\n\n${c}`;
+      const blob = new Blob([md],{type:'text/markdown'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = s + '.md'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    // Copy markdown
+    copyBtn.addEventListener('click', async ()=>{
+      const t = titleEl.value.trim() || 'untitled';
+      const s = slugEl.value.trim() || slugify(t) || ('post-'+Date.now());
+      const c = contentEl.value || '';
+      const md = `---\ntitle: ${t}\nslug: ${s}\ndate: ${new Date().toISOString()}\n---\n\n${c}`;
+      try{ await navigator.clipboard.writeText(md); alert('Markdown copied to clipboard'); }catch(e){ prompt('Copy the markdown below', md); }
+    });
+
+    // init
+    renderPosts(); updatePreview();
+
+    // allow opening posts by clicking the most recent automatically
+    if(posts.length>0){ openPost(posts[posts.length-1].id); }
+
+  </script>
+</body>
+</html>
